@@ -1,0 +1,78 @@
+#########Residuos en el pronostico#################
+#diferencia entre el valor observado y su pronóstico
+#basado en todos observaciones ... et=yt-yt|t-1
+
+##Supuestos
+#1)Los et no esten correlacionados
+#2)Tienen media cero. si no cumple con estos supuestos, estan sesgados
+
+##Propiedades de los residuos
+#1)Tiene varianza cte.
+#2)Normalmente distribuidos
+
+##Ruido blanco
+#Son una serie de v.a. incorrelacionadas cov(x,y)=0), con media 0 y varianza finita
+#Lo ideal del ruido blanco es que la autocorrelacion sea cercana a cero
+#En la mayoria de ST las autocorrelacionesw no son =0
+
+#Media de error absoluto: MAE=mean(|ei|)
+
+##Porcentaje de errores
+#Esta dado por po=100(ei/yi). Son indep. de la escala
+#MAPE=media(!Pi|)
+##Desventajas:
+#Son indefinidos si yi=0
+
+##Simétrico error absoluto porcentual
+#promedio: sMAPE
+
+###Calculo en R
+#accuracy(modelo1,st2)
+#accuracy(modelo2,st2)
+#accuracy(modelo3,st2)
+pib <- read.csv ("C:\\Users\\SALA-C13\\Downloads\\PIB TRIMESTRAL A PRECIOS DE 2008.csv", header = F )
+pibts <- ts (pib[,2],start =1993, frequency = 4)
+View(pibts)
+plot (pibts)
+Acf (pibts)
+#######Metodo de la media###########
+meanf(pibts)
+pibpro <- meanf(pibts,4)
+plot(pibpro)
+pibmesdia <- ts(pib [,2], start  = 2005, frequency = 4)
+plot (pibmesdia)
+Acf (pibmesdia)
+# pibts es la ST 
+### el número de datos a proyectar en este caso elegí h = 3
+
+########## ingenuo###############
+pibnai <- naive(pibts, 4)
+plot (pibnai)
+rwf(pibts, 3) # Alternativo
+
+### ingenuo estacional
+pibtssnai <- snaive(pibts, 4)
+pibtssnai
+plot(pibtssnai)
+help (snaive)
+
+########## metodo de la deriva
+
+pibtsder <- rwf(pibts, 4, drift = T)
+pibtsder
+plot (pibtsder)
+#rwf(st, h, drift=TRUE)
+
+evalmed<-accuracy(pibpro)
+evaling<-accuracy(pibnai)
+evalsnai<-accuracy(pibtssnai)
+evalder<-accuracy(pibtsder)
+
+##AME,MAPE,RMSE,MASE -> cercanos a cero
+evalmed
+evaling
+evalsnai
+evalder
+
+
+##El metodo mejor estudiado es el evalder ya que es el que mas se acerca a cero
